@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+
+{% block scripts_custom %}
+<script>
+  function newPopup(url) {
+    popupWindow = window.open(
+        url,'popUpWindow','height=250,width=330,left=10,top=10,resizable=no,scrollbars=no,toolbar=no,menubar=no,location=no,directories=no,status=no')
+  }
+</script>
+<script type="text/javascript">
+  //<![CDATA[
+  //abrir ventana para los popups
+  function abrirVentana(url){
+    window.open(url, "new", "directories=no, location=no, menubar=no, scrollbars=yes, statusbar=no, tittlebar=no, width=400, height=400");
+  }
+
+  //llamada ajax a captura para realizar el preview por la salida digital/analogica del raspi
+  function captura(urldestino){
+    $('#resultado_ajax').html('Play...');
+    $.get(urldestino + '%20' + $('#nivel_zoom').val(), null,
+      function()
+      {
+        $('#resultado_ajax').html('');
+      }
+    );
+  }
+
+  //refresco de la velocidad que monitorea el radar
+  $( document ).ready(function() {
+    (function(){ $.get('velocidad.php', null,
+        function(data)
+        {
+          $('#velocidad_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 250); //250);
+    })();
+  });
+
+  //refresco del Backoffice Online
+  $( document ).ready(function() {
+    (function(){ $.get('test.php', null,
+        function(data)
+        {
+          $('#backoffice_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 5000); //250);
+    })();
+  });
+
+  //refresco del tunnel 80 Online
+  $( document ).ready(function() {
+    (function(){ $.get('tunnel.php', null,
+        function(data)
+        {
+          $('#tunnel_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 5000); //250);
+    })();
+  });
+
+  //refresco del Modem Status
+  $( document ).ready(function() {
+    (function(){ $.get('modem.php', null,
+        function(data)
+        {
+          $('#modem_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 5000); //250);
+    })();
+  });
+</script>
+<script>
+
+  function runTunnel(){
+    document.getElementById('tunnel_button').style.display='none';
+    $.get('run_tunnel.php',null,null);
+    window.countdownNum = 5;
+    showTunnelButton();
+    }
+
+  function showTunnelButton(){
+    setTimeout (function(){
+	if(window.countdownNum != 0){
+    	    window.countdownNum--;
+            //document.getElementById('timeLeft').innerHTML = 'Time left: ' + countdownNum + ' seconds';
+            showTunnelButton();
+        } else {
+            document.getElementById('tunnel_button').style.display = 'inline-block';
+        }
+    },1000);
+  }
+
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+
+  body {
+    margin: 20px;
+    padding: 0px;
+  }
+  .table {
+    border: none;
+  }
+  .table .content {
+    text-align: center;
+    font-weight: bold;
+  }
+  .table .sidebar {
+    text-align: center;
+  }
+  .table .sidebar a.btn {
+    margin-right: 12px;
+  }
+
+  .img-responsive { margin: 0 auto; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <hr>
+  <h3 style="text-align: center;"><span style="color:grey;">Demo</span><b>.</b>NDeltaPi4<b>.</b>RF</h3>
+  <hr>
+  <form name="input" action="http://radar.estudiovial.com.ar:62942/index.php" method="get">
+
+  <center>
+
+  <table class="table table-striped table-hover">
+    <i>Ultima actualización:  27/11/2020 12:57:17 </i>
+    <br>
+    <hr>
+    <INPUT TYPE = "Submit" Name = "Sub1" VALUE = "Grabar" class="btn btn-primary">
+    <hr>
+    <tr>
+      <td class="content">Modo de Operacion</td> 
+      <td class="sidebar">
+        <select class="form-control" name="MODOV" value="P">
+          <option value="P" selected="selected">Produccion</option>
+          <option value="M">Mantenimiento</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Modo de video (solo valido para Matenimiento)</td>
+      <td class="sidebar">
+        <select class="form-control" name="MODOVIDEOV" value="STREAMING">
+          <option value="STREAMING" selected="selected">Streaming</option>
+          <option value="HDMI">Salida por HDMI</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Fecha</td> 
+      <td class="sidebar">
+        <input class="form-control" type="date" name="FECHAV" value="2020-11-26"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Hora</td>
+      <td class="sidebar">
+        <input class="form-control" type="time" name="HORAV" value="18:09"></input>
+        <br>
+        <INPUT TYPE = "Submit" Name = "Sub2" VALUE = "Grabar Fecha y Hora" class="btn btn-primary">
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Codigo de barrio</td>
+      <td class="sidebar">
+        <input class="form-control" type="text" name="BARRIOV" size="6" title="6 caracteres alfanumericos" value="DEMO-ZONA-UY"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Codigo de Radar</td>
+      <td class="sidebar">
+        <input class="form-control" type="text" name="RADAR_IDV" size="3" title="3 caracteres alfanumericos" value="zf"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Especifique protocolo de la antena</td>
+      <td class="sidebar">
+        <select class="form-control" name="PROTOCOLO_ANTENAV" value="2">
+          <option value="1">1. S999</option>
+          <option value="2" selected="selected">2. *S999.0,000</option>
+            </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Unidad de medida de velocidad</td>
+      <td class="sidebar">
+        <select class="form-control" name="SPEED_UNITV" value="K">
+          <option value="K" selected="selected">Kilometros</option>
+          <option value="M">Millas</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Velocidad Maxima Permitida</td>
+      <td class="sidebar">
+        <input class="form-control" type="number" name="VEL_MAXV" min="10" max="300" value="30"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Velocidad de Captura</td>
+      <td class="sidebar">
+        <input class="form-control" type="number" name="VEL_CAPV" min="10" max="300" value="34"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Velocidad de Captura Limite</td>
+      <td class="sidebar">
+        <input class="form-control" type="number" name="VEL_CAP_LIMITEV" min="10" max="300" value="50"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Sentido de Captura</td>
+      <td class="sidebar">
+        <select class="form-control" name="SENTIDOV" value="+">
+          <option value="+" selected="selected">Movil acercandose</option>
+          <option value="-">Movil alejandose</option><option value="*">Ambos sentidos</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Direccion de paso - [ID] / [DI]</td>
+      <td class="sidebar">
+        <select class="form-control" name="DIRECCIONV" value="OFF">
+          <option value="ID">ID</option>
+          <option value="DI">DI</option>
+          <option value="OFF" selected="selected">OFF</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotacion de Camara</td>
+      <td class="sidebar">
+        <select class="form-control" name="ROTACIONV" value="180">
+          <option value="0">0</option>
+          <option value="180" selected="selected">180</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Nivel de Zoom</td>
+      <td class="sidebar">
+        <input class="form-control" type="range" name="NIVEL_ZOOMV" min="1" max="10" value="8" oninput="this.form.NIVEL_ZOOM.value=this.value"></input>
+        <output name="NIVEL_ZOOM" for="NIVEL_ZOOM">8</output>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Shutter Speed (Recomendado: 2500 microsegundos)</td>
+      <td class="sidebar">
+        <input class="form-control" type="number" name="SHUTTER_SPEEDV" min="1000" max="5000" value="1783"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Modo Sports - Desde (0 a 24hs)</td>
+      <td class="sidebar">
+        <input class="form-control" type="range" name="SPORTS_MODE_DESDEV" min="0" max="24" value="7" oninput="this.form.SPORTS_MODE_DESDE.value=this.value"></input>
+        <output name="SPORTS_MODE_DESDE" for="SPORTS_MODE_DESDE">7</output>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Modo Sports - Hasta (0 a 24hs)</td> 
+      <td class="sidebar">
+        <input class="form-control" type="range" name="SPORTS_MODE_HASTAV" min="0" max="24" value="17" oninput="this.form.SPORTS_MODE_HASTA.value=this.value"></input>
+        <output name="SPORTS_MODE_HASTA" for="SPORTS_MODE_HASTA">17</output>
+      </td>
+    </tr>
+      <td class="sidebar">
+        <input class="form-control" type="hidden" name="ESTILOS_CSSV" value="/css/bootstrap.css"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Vista previa</td> 
+      <td class="sidebar"><img class="img-responsive" src="cartel.php" alt="Vista Previa" width="320" height="240" /></td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Linea 1 ej. Santa Barbara</td> 
+      <td class="sidebar">
+        <input class="form-control" type="text" name="BARRIO_LARGOV" size="50"  title="50 caracteres alfanumericos" value="DEMO ZONA UY"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Linea 2 ej. Rotonda principal</td> 
+      <td class="sidebar">
+        <input class="form-control" type="text" name="BARRIO_LARGO2V" size="50"  title="50 caracteres alfanumericos" value=""></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Formato de Fecha y Hora</td> 
+      <td class="sidebar">
+        <select class="form-control" name="FORMATO_FECHA_HORAV" value="2">
+          <option value="1">1. DD-MM-AA 24:mm:ss</option>
+          <option value="2" selected="selected">2. DD-MM-AAAA 24:mm:ss</option>
+          <option value="3">3. AA-MM-DD 24:mm:ss</option>
+          <option value="4">4. AAAA-MM-DD 24:mm:ss</option>
+          <option value="5">5. DD-MM-AA hh:mm:ss</option>
+          <option value="6">6. DD-MM-AAAA hh:mm:ss</option>
+          <option value="7">7. AA-MM-DD hh:mm:ss</option>
+          <option value="8">8. AAAA-MM-DD hh:mm:ss</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Ubicación </td> 
+      <td class="sidebar">
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary active" title="Arriba Izquierda">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="1" checked="checked" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <label class="btn btn-primary" title="Arriba Medio">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="2" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <label class="btn btn-primary" title="Arriba Derecha">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="3" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <br />
+          <label class="btn btn-primary" title="Centro Izquierda">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="4" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <label class="btn btn-primary" title="Centro Medio">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="5" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <label class="btn btn-primary" title="Centro Derecha">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="6" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <br />
+          <label class="btn btn-primary" title="Abajo Izquierda">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="7" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <label class="btn btn-primary" title="Abajo Medio">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="8" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <label class="btn btn-primary" title="Abajo Derecha">
+          <input class="form-control" type="radio" name="ROTULO_POSICIONV" value="9" />&nbsp;&nbsp;&nbsp;&nbsp;</label>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Color del texto</td> 
+      <td class="sidebar"><input class="form-control" type="color" name="COLOR_FUENTEV" value="#000000"></input></td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Color del fondo</td> 
+      <td class="sidebar">
+        <input class="form-control" type="color" name="COLOR_FONDOV" value="#ffffff"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo: Nivel de transparencia</td> 
+      <td class="sidebar">
+        <input class="form-control" type="range" name="ALPHAV" min="1" max="255" value="119" oninput="this.form.ALPHA.value=this.value"></input>
+        <output name="ALPHA" for="ALPHA">119</output>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo/Imagen: Color de los bordes</td> 
+      <td class="sidebar"><input class="form-control" type="color" name="COLOR_BORDESV" value="#000000"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content"><i color=red>Rotulo</i> GPS</td> 
+      <td class="sidebar">
+        <select class="form-control" name="HASHV" value="2">
+          <option value="1">Activado</option>
+          <option value="2" selected="selected">Desactivado</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo GPS: Latitud ej. 33.099</td> 
+      <td class="sidebar">
+        <input class="form-control" type="text" name="GPS_LATV" size="6"  title="6 caracteres" value="34.988"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">Rotulo GPS: Longitud ej. 54.349</td> 
+      <td class="sidebar">
+        <input class="form-control" type="text" name="GPS_LONV" size="6"  title="6 caracteres" value="55.093"></input>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">WiFi AP SSID:</td> 
+      <td class="sidebar">
+        <input class="form-control" type="range" name="SSIDV" min="1" max="2" value="1" oninput="this.form.SSID.value=this.value"></input>
+        <output name="SSID" for="SSID">1</output>
+      </td>
+    </tr>
+    <tr>
+      <td class="content">CONN:OnLine #</td> 
+      <td class="sidebar">
+        <input class="form-control" type="number" name="VPORT22V" min="1" max="999" value="942"></input>
+      </td>
+    </tr>
+        <input class="form-control" type="hidden" name="EVCOD019V" value=""></input>
+      </td>
+    </tr>
+  </table>
+  <i>Ultima actualización:  27/11/2020 12:57:17 </i>
+  <br> 
+  <hr>
+  <INPUT TYPE = "Submit" Name = "Sub1" VALUE = "Grabar" class="btn btn-primary">
+  <hr>
+  
+  </center>
+
+  </form>
+</div>
+{% endblock %}

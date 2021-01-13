@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block scripts_custom %}
+<script>
+  function newPopup(url) {
+    popupWindow = window.open(
+        url,'popUpWindow','height=250,width=330,left=10,top=10,resizable=no,scrollbars=no,toolbar=no,menubar=no,location=no,directories=no,status=no')
+  }
+</script>
+<script type="text/javascript">
+  //<![CDATA[
+  //abrir ventana para los popups
+  function abrirVentana(url){
+    window.open(url, "new", "directories=no, location=no, menubar=no, scrollbars=yes, statusbar=no, tittlebar=no, width=400, height=400");
+  }
+
+  //llamada ajax a captura para realizar el preview por la salida digital/analogica del raspi
+  function captura(urldestino){
+    $('#resultado_ajax').html('Play...');
+    $.get(urldestino + '%20' + $('#nivel_zoom').val(), null,
+      function()
+      {
+        $('#resultado_ajax').html('');
+      }
+    );
+  }
+
+  //refresco de la velocidad que monitorea el radar
+  $( document ).ready(function() {
+    (function(){ $.get('velocidad.php', null,
+        function(data)
+        {
+          $('#velocidad_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 250); //250);
+    })();
+  });
+
+  //refresco del Backoffice Online
+  $( document ).ready(function() {
+    (function(){ $.get('test.php', null,
+        function(data)
+        {
+          $('#backoffice_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 5000); //250);
+    })();
+  });
+
+  //refresco del tunnel 80 Online
+  $( document ).ready(function() {
+    (function(){ $.get('tunnel.php', null,
+        function(data)
+        {
+          $('#tunnel_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 5000); //250);
+    })();
+  });
+
+  //refresco del Modem Status
+  $( document ).ready(function() {
+    (function(){ $.get('modem.php', null,
+        function(data)
+        {
+          $('#modem_ajax').html(data);
+        }
+      );
+      setTimeout(arguments.callee, 5000); //250);
+    })();
+  });
+</script>
+<script>
+
+  function runTunnel(){
+    document.getElementById('tunnel_button').style.display='none';
+    $.get('run_tunnel.php',null,null);
+    window.countdownNum = 5;
+    showTunnelButton();
+    }
+
+  function showTunnelButton(){
+    setTimeout (function(){
+	if(window.countdownNum != 0){
+    	    window.countdownNum--;
+            //document.getElementById('timeLeft').innerHTML = 'Time left: ' + countdownNum + ' seconds';
+            showTunnelButton();
+        } else {
+            document.getElementById('tunnel_button').style.display = 'inline-block';
+        }
+    },1000);
+  }
+
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+
+  body {
+    margin: 20px;
+    padding: 0px;
+  }
+  .table {
+    border: none;
+  }
+  .table .content {
+    text-align: center;
+    font-weight: bold;
+  }
+  .table .sidebar {
+    text-align: center;
+  }
+  .table .sidebar a.btn {
+    margin: 8px;
+  }
+
+  #velocidad_ajax {
+   font-size: 28px!important;
+   font-weight: bold;
+  }
+
+  #backoffice_ajax {
+   font-size: 20px!important;
+   font-weight: bold;
+  }
+
+  #tunnel_button {
+   font-size: 16px!important;
+   font-weight: bold;
+  }
+
+  #tunnel_ajax {
+   font-size: 20px!important;
+   font-weight: bold;
+  }
+
+  #tar_button {
+   font-size: 16px!important;
+   font-weight: bold;
+  }
+
+  #tar_ajax {
+   font-size: 20px!important;
+   font-weight: bold;
+  }
+
+  #modem_ajax {
+   font-size: 20px!important;
+   font-weight: bold;
+  }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <hr>
+  <h3 style="text-align: center;"><span style="color:grey;">Demo</span><b>.</b>NDeltaPi4<b>.</b>RF</h3>
+  <hr>
+  <form name="input" action="http://radar.estudiovial.com.ar:62942/index.php" method="get">
+
+  <center>
+
+  <table class="table table-striped table-hover">
+    <tbody>
+
+      <tr>
+        <td class="sidebar" colspan="2">
+          <span class="label label-default" id="velocidad_ajax">?000</span>
+        </td>
+      </tr>
+
+      <tr>
+      <td class="sidebar" colspan="2">
+        <span class="label label-default" id="modem_ajax"><b class="label label-info">Signal</b> <b class="label label-success">
+        LTE  
+        -73dBm  
+        </b>
+        </span><br><br>
+        
+        <span class="label label-default" id="backoffice_ajax"><b class="label label-info">Backoffice</b> <b class="label label-success">
+        ON-LINE
+        </b></span><br><br>
+        <span id="tunnel_button" class="btn btn-danger btn-xs" onclick="runTunnel();">Start</span> <span class="label label-default" id="tunnel_ajax"><b class="label label-info">Tunnel</b> <b class="label label-success">
+        62942
+        </b>
+        </span><br><br>
+        <span id="tar_button" class="btn btn-danger btn-xs" onclick="runTar();">Tar</span> <span class="label label-default" id="tar_ajax">
+        ...
+        </span>
+      </td>
+      </tr>
+
+      <tr>
+        <td class="content">Modo de Operación</td>
+        <td class="sidebar"> Producción </td>
+      </tr>
+
+      <tr>
+        <td class="content">Su Host</td>
+        <td class="sidebar">::1</td>
+      </tr>
+
+      <tr>
+        <td class="content">IP Radar</td>
+        <td class="sidebar">radar.estudiovial.com.ar:62942</td>
+      </tr>
+
+      <tr>
+        <td class="content">Nombre Radar</td>
+        <td class="sidebar">DEMO-ZONA-UY <i>zf</i> </td>
+      </tr>
+
+      <tr>
+        <td class="content">
+          <input type="Submit" formmethod="post" name="Sub1" value="En Proceso [ Borrar ]" class="btn btn-danger"><br><br>
+          <input type="Submit" formmethod="post" name="Sub3" value="[ Borrar Historial ]" class="btn btn-danger">
+        </td>
+        <td class="sidebar"></td>
+      </tr>
+
+      <tr>
+        <td class="content">Fecha / Hora Actual</td>
+        <td class="sidebar">2020-11-29 02:02:49</td>
+      </tr>
+
+      <tr>
+        <td class="content">Espacio Libre</td>
+        <td class="sidebar">SD (root): <span class="label label-success">9.0G
+        </span><br>Pendrive (sda1): <span class="label label-success"></span></td>
+      </tr>
+    
+    </tbody>
+  </table>
+
+  </center>
+
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{# extends "base.html" #}
+<html> 
+<head> 
+<!--Make sure page contains valid doctype at the very top!-->
+
+{% block scripts_custom %}
+<script type="text/javascript" src="{{ url_for('static', filename='jquery/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='jquery/stepcarousel.js') }}">
+    /***********************************************
+    * Step Carousel Viewer script- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+    * Visit http://www.dynamicDrive.com for hundreds of DHTML scripts
+    * This notice must stay intact for legal use
+    ***********************************************/
+</script>
+
+<script type="text/javascript">
+stepcarousel.setup({
+    galleryid: 'mygallery', //id of carousel DIV
+    beltclass: 'belt', //class of inner "belt" DIV containing all the panel DIVs
+    panelclass: 'panel', //class of panel DIVs each holding content
+    autostep: {enable:true, moveby:1, pause:160},
+    panelbehavior: {speed:0, wraparound:false, wrapbehavior:'slide', persist:true},
+    defaultbuttons: {enable: true, moveby: 1, leftnav: ['{{ url_for('static', filename='images/gtk_media_forward_rtl.png') }}', -140, 80], rightnav: ['{{ url_for('static', filename='images/gtk_media_forward_ltr.png') }}' , 15, 80]},
+    statusvars: ['statusA', 'statusB', 'statusC'], //register 3 variables that contain current panel (start), current panel (last), and total panels
+    contenttype: ['inline'] //content setting ['inline'] or ['ajax', 'path_to_external_file']
+})
+
+jQuery(document).ready(function(){
+jQuery(document).keypress(function(event){
+//    alert(event.keyCode);
+    if(event.keyCode==39){
+    stepcarousel.stepBy("mygallery",1);
+    
+    }
+    if(event.keyCode==37){
+    stepcarousel.stepBy("mygallery",-1);
+    }
+});
+});
+</script>
+{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+    body{
+    background-color: #333333;
+    color: #FFFFFF;
+    }
+    
+    .stepcarousel{
+    position: relative; /*leave this value alone*/
+    border: 30px solid #FF9900;
+    overflow: scroll; /*leave this value alone*/
+    width: 320px; /*Width of Carousel Viewer itself*/
+    height: 240px; /*Height should enough to fit largest content's height*/
+    }
+    
+    .stepcarousel .belt{
+    position: absolute; /*leave this value alone*/
+    left: 0;
+    top: 0;
+    }
+    
+    .stepcarousel .panel{
+    float: left; /*leave this value alone*/
+    overflow: hidden; /*clip content that go outside dimensions of holding panel DIV*/
+    margin: 0px; /*margin around each panel*/
+    width: 320px; /*Width of each panel holding each content. If removed, widths should be individually defined on each content DIV then. */
+    height: 240px; /*Width of each panel holding each content. If removed, widths should be individually defined on each content DIV then. */
+    }
+    
+    /* Thick red border */
+    hr.new4 {
+        border: 3px solid #666666;
+    }
+</style>
+{% endblock %}
+</head>
+
+<body>
+{% block content %}
+    <CENTER>
+    <div><span style="font-family: courier; font-size: 24;"> REGISTRO DE VIDEO <a href={{url_for('main.filesystem', safe_path=z_safe_path)}} >Z</a> </span></div>
+    <hr class="new4">
+    <div id="mygallery" class="stepcarousel">
+    <div class="belt">
+
+    {% for pic in pics | sort %}
+    <div class=panel>
+    <img src="{{ pic }}" >
+    </div>
+    {% endfor %}
+
+    </div>
+    </div>
+    </div>
+    <hr class="new4">
+    <p style="font-family: courier; font-size: 24;">
+    <span id="statusA"></span>/<span id="statusC"></span>
+    </p>
+    
+    <p id="mygallery-paginate" style="width: 480px; text-align:center">
+    <img src={{ url_for('static', filename="images/opencircle.png") }} 
+         data-over={{ url_for('static', filename="images/graycircle.png") }} 
+         data-select={{ url_for('static', filename="images/closedcircle.png") }} 
+         data-moveby="1" />
+    </p>
+    
+    <p>
+    <a href="javascript:stepcarousel.stepTo('mygallery', 1)"><img src={{ url_for('static', filename="images/gtk_media_next_rtl.png") }}></a>
+    <a href="javascript:stepcarousel.stepBy('mygallery', -1)" style="margin-left: 10px" ><img src={{ url_for('static', filename="images/gtk_media_forward_rtl.png") }}> </a>
+    <a href="javascript:stepcarousel.stepBy('mygallery', 1)" style="margin-left: 80px"><img src={{ url_for('static', filename="images/gtk_media_forward_ltr.png") }}></a> 
+    <a href="javascript:stepcarousel.stepTo('mygallery', {{ pics | length }})" style="margin-left: 10px" ><img src={{ url_for('static', filename="images/gtk_media_next_ltr.png") }}></a>
+    </p>
+    </CENTER> 
+{% endblock %}
+</BODY> 
+</HTML> 

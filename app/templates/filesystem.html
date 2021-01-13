@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block scripts_custom %}
+{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<Center>
+<hr>
+<span><a href="{{ url_for('main.filesystem', safe_path=up_safe_path) }}">Back</a></span>
+<hr>
+<div>
+    {% for dir in dirs | sort(reverse = True) %}
+        {% set enddir = dir.split('/')[-1] %}
+        {% set safe_path = '.'.join(dir.split('fotos')[1].split('/')) %}
+        {% if enddir | length == 6 %}
+            <span><a href="{{ url_for('main.carrusel', safe_path=safe_path) }}">{{ enddir }}</a></span><br>
+        {% else %}
+            <span><a href="{{ url_for('main.filesystem', safe_path=safe_path) }}">{{ enddir }}</a></span><br>
+        {% endif %}
+    {% endfor %}
+    </div>
+<div>
+    {% for file in files | sort(reverse = True) %}
+        {% set endfile = file.split('/')[-1] %}
+        <span><a href="{{ file }}" target="_blank">{{ endfile }}</a></span><br>
+    {% endfor %}
+</div>
+</Center>
+{% endblock %}
